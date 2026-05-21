@@ -55,7 +55,18 @@ class CareervietSpiderSpider(scrapy.Spider):
             "other_information"
         ]
     }
-    start_urls = ["https://careerviet.vn/viec-lam/data-k-vi.html"]
+
+    KEYWORDS = [
+        "data", "data-analyst", "data-engineer",
+        "data-scientist", "business-intelligence",
+        "machine-learning", "analytics-engineer", "data-science", "data-analytics", "big-data"
+    ]
+    tmp = []
+    for i in KEYWORDS:
+        tmp.append(f"https://careerviet.vn/viec-lam/{i}-k-vi.html")
+
+
+    start_urls = tmp
 
     # url = f'https://careerviet.vn/viec-lam/{search_keyword}-k-vi.html'
     # https://careerviet.vn/viec-lam/data-k-vi.html
@@ -80,16 +91,12 @@ class CareervietSpiderSpider(scrapy.Spider):
 
     def parse(self, response):
         job_links = response.xpath('//a[contains(@class, "job_link")]/@href').getall()
-        for job_link in job_links:
-            yield response.follow(
-                f'https://careerviet.vn/{job_link}',
-                callback=self.parse_job                
-            )
-
-        # build next page url
-        # keyword = response.meta["keyword"]
-        # page = response.meta["page"]
-        # page = 1
+        if job_links is not None:
+            for job_link in job_links:
+                yield response.follow(
+                    f'https://careerviet.vn/{job_link}',
+                    callback=self.parse_job                
+                )
         
         # if job_links:  # if there are job links this page, then there might be a next page
         next_page_url = f"https://careerviet.vn/viec-lam/data-k-trang-{page}-vi.html"
@@ -97,10 +104,11 @@ class CareervietSpiderSpider(scrapy.Spider):
         # if next_page_url:
         yield scrapy.Request(
             next_page_url,
-            callback=self.parse,
-            # meta={"keyword": keyword, "page": page + 1}
+            callback=self.parse
         )
         page+=1
+
+        
     def remove_html_tags(self, html_text):
         return re.sub(r'[\n\t]+', '', html_text)
     
@@ -135,5 +143,6 @@ class CareervietSpiderSpider(scrapy.Spider):
 
         other_info_text = response.xpath('//h3[re:test(., "thông tin khác", "i")]/following-sibling::div//text()').getall()
         item['other_information'] = ' '.join(list(map(self.remove_html_tags, other_info_text)))
+        item['platform'] = "CareerViet"
         yield item
 

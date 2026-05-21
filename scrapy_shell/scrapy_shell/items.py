@@ -27,3 +27,4 @@ class careerviet_item(scrapy.Item):
     job_description = scrapy.Field()
     job_requirements = scrapy.Field()
     other_information = scrapy.Field()
+    platform = scrapy.Field()
