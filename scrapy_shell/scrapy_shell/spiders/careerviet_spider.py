@@ -5,6 +5,8 @@ timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 import re
 import scrapy
 from scrapy_shell.items import careerviet_item
+import logging
+logger = logging.getLogger(__name__)
 
 
 page=1
@@ -15,7 +17,7 @@ class CareervietSpiderSpider(scrapy.Spider):
     custom_settings = {
         "ROBOTSTXT_OBEY": False,
         "LOG_FILE":f"f:/data_job_market_repo/test/careerviet/logs/careerviet_{timestamp}.log",
-        "LOG_LEVEL":"DEBUG",
+        "LOG_LEVEL":"INFO",
         "FEEDS":{
             f"f:/data_job_market_repo/test/careerviet/raw_data/careerviet_{timestamp}.json":{
                 'format':'json',
@@ -56,10 +58,57 @@ class CareervietSpiderSpider(scrapy.Spider):
         ]
     }
 
+    # url = f'https://careerviet.vn/viec-lam/{search_keyword}-k-vi.html'
+    # https://careerviet.vn/viec-lam/data-k-vi.html
+    # https://careerviet.vn/viec-lam/data-analyst-k-vi.html
+    # https://careerviet.vn/viec-lam/data-engineer-k-vi.html
+
     KEYWORDS = [
-        "data", "data-analyst", "data-engineer",
-        "data-scientist", "business-intelligence",
-        "machine-learning", "analytics-engineer", "data-science", "data-analytics", "big-data"
+        # Data Core
+        "data",
+        "data-analyst",
+        "data-engineer",
+        "data-scientist",
+        "data-science",
+        "data-analytics",
+        "data-architect",
+        "data-modeler",
+        "data-warehouse",
+        "data-governance",
+        "data-quality",
+        "big-data",
+
+        # BI
+        "business-intelligence",
+        "analytics-engineer",
+        "bi-developer",
+        "power-bi",
+        "tableau",
+
+        # Engineering / Database
+        "etl-developer",
+        "database-administrator",
+        "sql",
+        "python-developer",
+
+        # ML / AI Classic
+        "machine-learning",
+        "deep-learning",
+        "mlops",
+        "ai-engineer",
+        "ai-developer",
+        "ai-researcher",
+        "artificial-intelligence",
+        "computer-vision",
+        "nlp",
+        "statistician",
+
+        # GenAI / Modern AI
+        "generative-ai",
+        "gen-ai",
+        "llm",
+        "prompt-engineer",
+        "chatbot",
     ]
     tmp = []
     for i in KEYWORDS:
@@ -67,27 +116,6 @@ class CareervietSpiderSpider(scrapy.Spider):
 
 
     start_urls = tmp
-
-    # url = f'https://careerviet.vn/viec-lam/{search_keyword}-k-vi.html'
-    # https://careerviet.vn/viec-lam/data-k-vi.html
-    # https://careerviet.vn/viec-lam/data-analyst-k-vi.html
-    # https://careerviet.vn/viec-lam/data-engineer-k-vi.html
-
-    
-    # def start_requests(self):
-    #     KEYWORDS = [
-    #     "data", "data-analyst", "data-engineer",
-    #     "data-scientist", "business-intelligence",
-    #     "machine-learning", "analytics-engineer", "data-science", "data-analytics", "big-data"
-    # ]   
-    #     for keyword in KEYWORDS:
-    #         self.logger.debug(f"GENERATING REQUEST FOR: {keyword}")
-    #         url = f"https://careerviet.vn/viec-lam/{keyword}-k-vi.html"
-    #         yield scrapy.Request(
-    #             url,
-    #             callback=self.parse,
-    #             meta={"keyword": keyword, "page": 1}
-    #         )
 
     def parse(self, response):
         job_links = response.xpath('//a[contains(@class, "job_link")]/@href').getall()
@@ -98,17 +126,19 @@ class CareervietSpiderSpider(scrapy.Spider):
                     callback=self.parse_job                
                 )
         
-        # if job_links:  # if there are job links this page, then there might be a next page
-        next_page_url = f"https://careerviet.vn/viec-lam/data-k-trang-{page}-vi.html"
-        
-        # if next_page_url:
-        yield scrapy.Request(
-            next_page_url,
-            callback=self.parse
-        )
-        page+=1
+        # build next page url
+        current_url = response.url
+        match = re.search(r'/viec-lam/(.+?)-k(?:-trang-(\d+))?-vi\.html', current_url)
+        if match:
+            keyword = match.group(1) 
+            page = int(match.group(2) or 1) # None = first page
+            next_page = page + 1
+            
+            next_page_url = f"https://careerviet.vn/viec-lam/{keyword}-k-trang-{next_page}-vi.html"
+            yield response.follow(next_page_url, callback=self.parse)
+        # page+=1
 
-        
+
     def remove_html_tags(self, html_text):
         return re.sub(r'[\n\t]+', '', html_text)
     
@@ -144,5 +174,7 @@ class CareervietSpiderSpider(scrapy.Spider):
         other_info_text = response.xpath('//h3[re:test(., "thông tin khác", "i")]/following-sibling::div//text()').getall()
         item['other_information'] = ' '.join(list(map(self.remove_html_tags, other_info_text)))
         item['platform'] = "CareerViet"
+
+        logger.info(response.text[:2000])
         yield item
 
