@@ -2,6 +2,9 @@ import asyncio
 from playwright.async_api import async_playwright
 from playwright_stealth import Stealth
 import json
+import os
+os.chdir("playwright")
+print(os.getcwd())
 
 
 async def login():
