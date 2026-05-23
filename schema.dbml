@@ -46,15 +46,19 @@ Table dim_job_info {
   job_requirements text [note: "Yêu cầu công việc"]
 }
 
-Table dim_benefits {
-  benefit_key serial [pk]
-  raw_benefits_list jsonb [note: "Lưu mảng JSON gốc để backup"]
-  has_laptop boolean [note: "Cờ: Có cấp Laptop không?"]
-  has_insurance boolean [note: "Cờ: Có bảo hiểm không?"]
-  has_annual_leave boolean [note: "Cờ: Có phép năm không?"]
-  has_training boolean [note: "Cờ: Có đào tạo không?"]
-  has_travel boolean [note: "Cờ: Có du lịch không?"]
-}
+TABLE dim_benefits (
+    benefit_key SERIAL PRIMARY KEY,
+    raw_benefits_text TEXT,               -- Lưu đoạn text gốc để trace lại khi cần
+    has_insurance BOOLEAN DEFAULT FALSE,         -- BHXH, BHYT bắt buộc
+    has_premium_insurance BOOLEAN DEFAULT FALSE, -- Bảo hiểm sức khỏe tự nguyện (PVI, BaoViet...)
+    has_bonus BOOLEAN DEFAULT FALSE,             -- Thưởng tháng 13, KPI, Lễ Tết
+    has_allowance BOOLEAN DEFAULT FALSE,         -- Phụ cấp (Cơm trưa, đi lại, điện thoại)
+    has_annual_leave BOOLEAN DEFAULT FALSE,      -- Phép năm
+    has_travel BOOLEAN DEFAULT FALSE,            -- Du lịch, teambuilding
+    has_training BOOLEAN DEFAULT FALSE,          -- Đào tạo, cấp ngân sách học tập
+    has_health_check BOOLEAN DEFAULT FALSE,      -- Khám sức khỏe định kỳ
+    has_device_provided BOOLEAN DEFAULT FALSE    -- Cung cấp laptop/máy tính (thay cho has_laptop rộng hơn)
+);
 
 Table dim_date {
   date_key int [pk, note: "Định dạng YYYYMMDD"]
