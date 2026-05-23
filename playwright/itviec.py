@@ -45,11 +45,17 @@ async def login():
 async def test():
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=False)
+        # context = environment
+        context = await browser.new_context()
+        
+        with open("cookies.json", "r") as f:
+            cookies = json.load(f)
+        
+        await context.add_cookies(cookies)
+
         page = await browser.new_page()
 
-        await page.goto
-
-        await Stealth().apply_stealth_async(page)  # cách mới
+        await Stealth().apply_stealth_async(page)
 
         await page.goto("https://itviec.com/it-jobs/data-analysis")
         await page.wait_for_timeout(100000)
@@ -59,7 +65,7 @@ async def test():
         await browser.close()
 
 # asyncio.run(test())
-asyncio.run(login())
+# asyncio.run(login())
 
 '''
 def run(playwright):
