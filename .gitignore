@@ -10,3 +10,4 @@ other.py
 draft.txt
 scrape.py
 playwright/itviec_cookies.json
+test_playwright.py

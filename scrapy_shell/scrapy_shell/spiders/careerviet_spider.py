@@ -89,7 +89,6 @@ class CareervietSpiderSpider(scrapy.Spider):
         "etl",
         "database-administrator",
         "sql",
-        "python-developer",
 
         # ML / AI Classic
         "machine-learning",
@@ -101,7 +100,6 @@ class CareervietSpiderSpider(scrapy.Spider):
         "artificial-intelligence",
         "computer-vision",
         "nlp",
-        "statistician",
 
         # GenAI / Modern AI
         "generative-ai",
@@ -135,7 +133,6 @@ class CareervietSpiderSpider(scrapy.Spider):
         "intern-etl",
         "intern-database-administrator",
         "intern-sql",
-        "intern-python-developer",
 
         # ML / AI Classic
         "intern-machine-learning",
@@ -147,7 +144,6 @@ class CareervietSpiderSpider(scrapy.Spider):
         "intern-artificial-intelligence",
         "intern-computer-vision",
         "intern-nlp",
-        "intern-statistician",
 
         # GenAI / Modern AI
         "intern-generative-ai",

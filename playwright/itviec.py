@@ -1,143 +1,220 @@
 import asyncio
-from playwright.async_api import async_playwright
+from playwright.sync_api import sync_playwright
 from playwright_stealth import Stealth
 import json
 import os
 os.chdir("playwright")
-print(os.getcwd())
+from dotenv import load_dotenv
+load_dotenv()
+from datetime import datetime, timedelta
+current_date = datetime.now()
+import random
 
+ITVIEC_EMAIL=os.getenv('ITVIEC_EMAIL')
+ITVIEC_PASSWORD=os.getenv('ITVIEC_PASSWORD')
+OUTPUT_FILE = "itviec_test_data.json"
 
-async def login():
-    
-    async with async_playwright() as p:
-        # open browser, headless=True = don't turn bring up the browser
-        browser = await p.chromium.launch_persistent_context(
-            user_data_dir=r"C:/Users/ADMIN/AppData/playright_profile",
-            channel="chrome",  # use real Chrome to prevent being prevented
-            headless=False,
-            args=["--disable-blink-features=AutomationControlled"], # hide bot properties
-        ) 
-        page = await browser.new_page()
-        
-        
-        # go to login page
-        await page.goto("https://itviec.com/sign_in")
-        await page.wait_for_selector("#user_email", timeout=30000)
-        
-        # fill login information
-        await page.fill("#user_email", "wtester312@gmail.com")
-        await page.fill("#user_password", "Iamtester123@")
-        
-        
-        # click login button
-        await page.click("button[type='submit']")
-        
-        # wait for login to be complete
-        await page.wait_for_load_state("networkidle")
-        
-        print("Currently at:", page.url)
-        
-        # get cookies so don't have to login next time - just run this first time
-        cookies = await page.context.cookies()
-        with open("./itviec_cookies.json", "w") as f:
-            json.dump(cookies, f)
-        print("Cookies saved")
-        
-        await browser.close()
+# search keywords
+KEYWORDS = [
+        # Data Core
+        "data",
+        "data-analyst",
+        "data-engineer",
+        "data-scientist",
+        "data-science",
+        "data-analytics",
+        "data-architect",
+        "data-modeler",
+        "data-warehouse",
+        "data-governance",
+        "data-quality",
+        "big-data",
 
-async def test():
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)
-        # context = environment
-        context = await browser.new_context()
-        
-        with open("cookies.json", "r") as f:
-            cookies = json.load(f)
-        
-        await context.add_cookies(cookies)
+        # BI
+        "business-intelligence",
+        "analytics-engineer",
+        "bi-developer",
+        "power-bi",
+        "tableau",
 
-        page = await browser.new_page()
+        # Engineering / Database
+        "etl",
+        "database-administrator",
+        "sql",
 
-        await Stealth().apply_stealth_async(page)
+        # ML / AI Classic
+        "machine-learning",
+        "deep-learning",
+        "mlops",
+        "ai-engineer",
+        "ai-developer",
+        "ai-researcher",
+        "artificial-intelligence",
+        "computer-vision",
+        "nlp",
 
-        await page.goto("https://itviec.com/it-jobs/data-analysis")
-        await page.wait_for_timeout(100000)
-        
-        print(await page.title())
-        
-        await browser.close()
+        # GenAI / Modern AI
+        "generative-ai",
+        "gen-ai",
+        "llm",
+        "prompt-engineer",
+        "chatbot",
 
-# asyncio.run(test())
-# asyncio.run(login())
+        # Data Core
+        "intern-data",
+        "intern-data-analyst",
+        "intern-data-engineer",
+        "intern-data-scientist",
+        "intern-data-science",
+        "intern-data-analytics",
+        "intern-data-architect",
+        "intern-data-modeler",
+        "intern-data-warehouse",
+        "intern-data-governance",
+        "intern-data-quality",
+        "intern-big-data",
 
-'''
-def run(playwright):
-    browser = playwright.chromium.launch()
+        # BI
+        "intern-business-intelligence",
+        "intern-analytics-engineer",
+        "intern-bi-developer",
+        "intern-power-bi",
+        "intern-tableau",
+
+        # Engineering / Database
+        "intern-etl",
+        "intern-database-administrator",
+        "intern-sql",
+
+        # ML / AI Classic
+        "intern-machine-learning",
+        "intern-deep-learning",
+        "intern-mlops",
+        "intern-ai-engineer",
+        "intern-ai-developer",
+        "intern-ai-researcher",
+        "intern-artificial-intelligence",
+        "intern-computer-vision",
+        "intern-nlp",
+
+        # GenAI / Modern AI
+        "intern-generative-ai",
+        "intern-gen-ai",
+        "intern-llm",
+        "intern-prompt-engineer",
+        "intern-chatbot",
+    ]
+
+# sleep for a random amount of time
+def random_sleep(page):
+    sleep_time = random.uniform(1.5, 4) * 1000 # ms * 1000 = s
+    page.wait_for_timeout(sleep_time)
+
+def login(playwright):
+    browser = playwright.chromium.launch_persistent_context(
+        user_data_dir=r"C:/Users/ADMIN/AppData/playwright_profile",
+        channel="chrome",
+        headless=False,
+        args=["--disable-blink-features=AutomationControlled"], # hide bot properties
+    )
+    page = browser.new_page()
+ 
+    page.goto("https://itviec.com/sign_in")
+    page.wait_for_selector("#user_email", timeout=30000)
+ 
+    page.fill("#user_email", ITVIEC_EMAIL)
+    page.fill("#user_password", ITVIEC_PASSWORD)
+    random_sleep(page)
+    page.click("button[type='submit']")
+    page.wait_for_load_state("networkidle")
+ 
+    print("Currently at:", page.url)
+ 
+    # cookies = browser.cookies()
+    # with open("./itviec_cookies.json", "w") as f:
+    #     json.dump(cookies, f)
+    # print("Cookies saved")
+ 
+    browser.close()
+
+# scrape each job
+def scrape_job(page):
+    location_selector = '.preview-job-overview div:has(a[href*="google.com/maps"]) span'
+    time_selector = '.preview-job-overview .d-flex.flex-column > div'
+    day_past = int(page.locator(time_selector).last.locator('span').inner_text().split()[0])
+
+    benefits_1 = page.locator('.reasons-join-us + ul li').all_inner_texts()
+    benefits_2 = page.locator('section.job-why-love-working div.paragraph li').all_inner_texts()
+    return {
+        "url": page.url,
+        "title": page.locator('.preview-job-wrapper h2').inner_text(),
+        "company_name": page.locator('a[href*="/companies/"]').first.inner_text(),
+        "locations": page.locator(location_selector).all_inner_texts(),
+        "posted_date": (current_date - timedelta(days=day_past)).strftime("%d/%m/%Y"),
+        "due_date": None,
+        "salary": page.locator('.salary span').inner_text(),
+        "experience": None,
+        "work_type": page.locator('.preview-header-item span.ms-1').first.inner_text(),
+        "skill_list": page.locator('.preview-job-wrapper a.itag').all_inner_texts(),
+        "job_category": page.locator('xpath=//div[text()="Job Domain:"]/..//div[contains(@class, "itag")]').all_inner_texts(),
+        "benefits": benefits_1 + benefits_2,
+        "job_description": page.locator('section.job-description div.paragraph').inner_text(),
+        "job_requirements": page.locator('section.job-experiences div.paragraph').inner_text()
+    }
+
+def main(playwright):
+    browser = playwright.chromium.launch_persistent_context(
+        user_data_dir=r"C:/Users/ADMIN/AppData/playwright_profile",
+        channel="chrome",
+        headless=False,
+        args=["--disable-blink-features=AutomationControlled"], # hide bot properties
+    )
     context = browser.new_context()
+ 
+    with open("itviec_cookies.json", "r") as f:
+        cookies = json.load(f)
+    context.add_cookies(cookies)
+ 
     page = context.new_page()
-    page.goto("https://www.topcv.vn/")
-    scraped_urls = set()
 
-    # lấy số trang
-    l = page.locator(".slick-pagination").inner_text().split()
-    num_pages = int(l[2])
-    # res = []
-    for count in range(10,num_pages):
-        # try:
-        page.wait_for_selector(".col-title.cvo-flex-grow a")
-        job_urls = page.locator("div.col-title h3 > a.title").evaluate_all("list => list.map(element => element.href)")
-        for i in range(len(job_urls)): # duyệt qua 12 job trong 1 trang
-            try:
-                job_data = {}
-                url = job_urls[i]
-                # check job đó đã được cào hay chưa
-                if url in scraped_urls:
-                    continue
-                scraped_urls.add(url)
-                # đi vào từng job
-                new_tab = context.new_page()
-                new_tab.goto(job_urls[i])
-                new_tab.wait_for_load_state()
+    for keyword in KEYWORDS:
+        print(f"Searching for: {keyword}")
+        search_url = f"https://itviec.com/it-jobs/{keyword}"
+        page.goto(search_url)
+        page.wait_for_load_state("networkidle")
+        random_sleep(page)
 
-                texts = new_tab.locator('.job-description__item--content').all_inner_texts()
-                job_data = {
-                    'url':url,
-                    'Công việc': new_tab.locator("h1").inner_text(),
-                    'Công ty': new_tab.locator(".company-name-label a.name").inner_text(),
-                    'Mức lương': new_tab.locator(".section-salary").locator(".job-detail__info--section-content-value").inner_text(),
-                    'Địa điểm làm việc (đã được cập nhật theo Danh mục Hành chính mới)' : new_tab.locator(".job-description__item", has_text="Địa điểm làm việc").all_inner_texts(),
-                    'Kinh nghiệm': new_tab.locator("#job-detail-info-experience").locator(".job-detail__info--section-content-value").inner_text(),
-                    'Mô tả công việc': texts[0],
-                    'Yêu cầu ứng viên': texts[1],
-                    'Quyền lợi': texts[2],
-                    'Thời gian làm việc':new_tab.locator(".job-description__item", has_text="Thời gian làm việc").all_inner_texts(),
-                    'Hạn nộp hồ sơ':new_tab.locator(".job-detail__information-detail--actions-label").inner_text(),
-                    'Timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                }
-                # res.append(job_data) 
-                # lưu data khi cào xong 1 trang - 12 job
-                with open("result.json", "a", encoding="utf-8") as f:
-                    line = json.dumps(job_data, ensure_ascii=False)
-                    f.write(line + "\n")
+        # keep looping until there is no more next page
+        job_urls = page.locator('h3[data-search--job-selection-target="jobTitle"]').evaluate_all(
+    "elements => elements.map(el => el.getAttribute('data-url'))"
+)
+        # scroll to the end, wait for 5s for the data to load and back to the top again
+        page.keyboard.press('End')
+        page.wait_for_timeout(5000)
+        page.keyboard.press('Home')
+        while 1:
+            for i in range(len(job_urls)):
+                # click on job link
+                job_urls[i].click()
+                random_sleep(page)
+                job_data = scrape_job(page)
+                with open(OUTPUT_FILE, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(job_data, ensure_ascii=False) + "\n")
                     f.flush()
-                new_tab.close()
-
-                # đi sang trang mới
-                try:
-                    page.click("span.btn-feature-jobs-next.btn-slick-arrow")
-                except:
-                    break
-            except:
-                continue
-        # except:
-        #     continue
+                
+            # go to next page
+            next_page = page.locator('a[rel="next"]')
+            if next_page.count() > 0: # 
+                next_page.click()
+                random_sleep(page)
+                page.wait_for_load_state("networkidle")
+            else:
+                break # no more page
+ 
     context.close()
     browser.close()
 
-with sync_playwright() as playwright:
-    run(playwright)
-
-
-
-
-'''
+# go into stealth mode to avoid human verification
+with Stealth().use_sync(sync_playwright()) as playwright:
+    login(playwright)
+    main(playwright)

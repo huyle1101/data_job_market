@@ -18,6 +18,7 @@ Table fact_job_posting {
   is_salary_negotiable boolean [note: "True nếu 'Cạnh tranh'"]
   min_experience_years numeric [note: "Ví dụ: 2"]
   max_experience_years numeric [note: "Ví dụ: 4"]
+  work_type VARCHAR [note: "on-site, hybrid, remote"]
   source_platform VARCHAR 
 }
 
