@@ -109,6 +109,52 @@ class CareervietSpiderSpider(scrapy.Spider):
         "llm",
         "prompt-engineer",
         "chatbot",
+
+        # Data Core
+        "intern-data",
+        "intern-data-analyst",
+        "intern-data-engineer",
+        "intern-data-scientist",
+        "intern-data-science",
+        "intern-data-analytics",
+        "intern-data-architect",
+        "intern-data-modeler",
+        "intern-data-warehouse",
+        "intern-data-governance",
+        "intern-data-quality",
+        "intern-big-data",
+
+        # BI
+        "intern-business-intelligence",
+        "intern-analytics-engineer",
+        "intern-bi-developer",
+        "intern-power-bi",
+        "intern-tableau",
+
+        # Engineering / Database
+        "intern-etl",
+        "intern-database-administrator",
+        "intern-sql",
+        "intern-python-developer",
+
+        # ML / AI Classic
+        "intern-machine-learning",
+        "intern-deep-learning",
+        "intern-mlops",
+        "intern-ai-engineer",
+        "intern-ai-developer",
+        "intern-ai-researcher",
+        "intern-artificial-intelligence",
+        "intern-computer-vision",
+        "intern-nlp",
+        "intern-statistician",
+
+        # GenAI / Modern AI
+        "intern-generative-ai",
+        "intern-gen-ai",
+        "intern-llm",
+        "intern-prompt-engineer",
+        "intern-chatbot",
     ]
     # tmp = []
     # for i in KEYWORDS:
