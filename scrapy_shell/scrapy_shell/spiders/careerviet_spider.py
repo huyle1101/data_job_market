@@ -1,5 +1,3 @@
-from email.mime import text
-from urllib import response
 from datetime import datetime
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 import re
@@ -19,8 +17,8 @@ class CareervietSpiderSpider(scrapy.Spider):
         "LOG_FILE":f"f:/data_job_market_repo/test/careerviet/logs/careerviet_{timestamp}.log",
         "LOG_LEVEL":"INFO",
         "FEEDS":{
-            f"f:/data_job_market_repo/test/careerviet/raw_data/careerviet_{timestamp}.json":{
-                'format':'json',
+            f"f:/data_job_market_repo/test/careerviet/raw_data/careerviet_{timestamp}.jsonl":{
+                'format':'jsonlines',
                 "encoding": "utf8"
                 # "overwrite": False
             }

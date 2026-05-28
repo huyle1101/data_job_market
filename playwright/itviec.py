@@ -1,6 +1,7 @@
 import asyncio
-from playwright.sync_api import sync_playwright
-from playwright_stealth import Stealth
+# from playwright.sync_api import sync_playwright
+# from playwright_stealth import Stealth
+from patchright.sync_api import sync_playwright
 import json
 import os
 os.chdir("playwright")
@@ -9,10 +10,11 @@ load_dotenv()
 from datetime import datetime, timedelta
 current_date = datetime.now()
 import random
+import numpy as np
 
 ITVIEC_EMAIL=os.getenv('ITVIEC_EMAIL')
 ITVIEC_PASSWORD=os.getenv('ITVIEC_PASSWORD')
-OUTPUT_FILE = "itviec_test_data.json"
+OUTPUT_FILE = "itviec_test_data.jsonl"
 
 # search keywords
 KEYWORDS = [
@@ -106,9 +108,11 @@ KEYWORDS = [
     ]
 
 # sleep for a random amount of time
-def random_sleep(page):
-    sleep_time = random.uniform(1.5, 4) * 1000 # ms * 1000 = s
-    page.wait_for_timeout(sleep_time)
+def human_sleep(page, min_s=1.0, max_s=4.0):
+    mean = (min_s + max_s) / 2
+    std = (max_s - min_s) / 6
+    sleep_s = np.clip(np.random.normal(mean, std), min_s, max_s)
+    page.wait_for_timeout(sleep_s * 1000)
 
 def login(playwright):
     browser = playwright.chromium.launch_persistent_context(
@@ -116,6 +120,10 @@ def login(playwright):
         channel="chrome",
         headless=False,
         args=["--disable-blink-features=AutomationControlled"], # hide bot properties
+        viewport={"width": 1366, "height": 768},
+        user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        locale="en-US",
+        timezone_id="Asia/Ho_Chi_Minh"
     )
     page = browser.new_page()
  
@@ -124,7 +132,7 @@ def login(playwright):
  
     page.fill("#user_email", ITVIEC_EMAIL)
     page.fill("#user_password", ITVIEC_PASSWORD)
-    random_sleep(page)
+    human_sleep(page)
     page.click("button[type='submit']")
     page.wait_for_load_state("networkidle")
  
@@ -168,21 +176,27 @@ def main(playwright):
         channel="chrome",
         headless=False,
         args=["--disable-blink-features=AutomationControlled"], # hide bot properties
+        viewport={"width": 1366, "height": 768},
+        user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        locale="en-US",
+        timezone_id="Asia/Ho_Chi_Minh"
     )
-    context = browser.new_context()
+    # context = browser.new_context()
  
-    with open("itviec_cookies.json", "r") as f:
-        cookies = json.load(f)
-    context.add_cookies(cookies)
+    # with open("itviec_cookies.json", "r") as f:
+    #     cookies = json.load(f)
+    # context.add_cookies(cookies)
  
-    page = context.new_page()
+    # page = context.new_page()
+    browser.add_cookies(json.load(open("itviec_cookies.json")))
+    page = browser.new_page()
 
     for keyword in KEYWORDS:
         print(f"Searching for: {keyword}")
         search_url = f"https://itviec.com/it-jobs/{keyword}"
         page.goto(search_url)
         page.wait_for_load_state("networkidle")
-        random_sleep(page)
+        human_sleep(page)
 
         # keep looping until there is no more next page
         job_urls = page.locator('h3[data-search--job-selection-target="jobTitle"]').evaluate_all(
@@ -190,13 +204,13 @@ def main(playwright):
 )
         # scroll to the end, wait for 5s for the data to load and back to the top again
         page.keyboard.press('End')
-        page.wait_for_timeout(5000)
+        human_sleep(page)
         page.keyboard.press('Home')
         while 1:
             for i in range(len(job_urls)):
                 # click on job link
-                job_urls[i].click()
-                random_sleep(page)
+                page.goto(job_urls[i])
+                human_sleep(page)
                 job_data = scrape_job(page)
                 with open(OUTPUT_FILE, "a", encoding="utf-8") as f:
                     f.write(json.dumps(job_data, ensure_ascii=False) + "\n")
@@ -206,15 +220,15 @@ def main(playwright):
             next_page = page.locator('a[rel="next"]')
             if next_page.count() > 0: # 
                 next_page.click()
-                random_sleep(page)
+                human_sleep(page)
                 page.wait_for_load_state("networkidle")
             else:
                 break # no more page
  
-    context.close()
+    # context.close()
     browser.close()
 
 # go into stealth mode to avoid human verification
-with Stealth().use_sync(sync_playwright()) as playwright:
+with sync_playwright() as playwright:
     login(playwright)
     main(playwright)
