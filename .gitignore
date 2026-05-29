@@ -14,3 +14,4 @@ test_playwright.py
 *.json
 *.html
 *.txt
+test.py
