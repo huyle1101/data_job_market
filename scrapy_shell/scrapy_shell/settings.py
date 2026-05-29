@@ -66,11 +66,12 @@ ROBOTSTXT_OBEY = False
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-DOWNLOADER_MIDDLEWARES={
-   'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-   'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 400,
-   # 'scrapy.downloadermiddlewares.retry.RetryMiddleware': None,
+DOWNLOADER_MIDDLEWARES = {
+    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
+    'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 400, 
 }
+
+
 
 # DEFAULT_REQUEST_HEADERS= {
 #    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',

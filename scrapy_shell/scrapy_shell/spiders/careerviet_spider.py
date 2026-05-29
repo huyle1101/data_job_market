@@ -23,19 +23,20 @@ class CareervietSpiderSpider(scrapy.Spider):
                 # "overwrite": False
             }
     },
-        "CONCURRENT_REQUESTS" : 32,
-        "CONCURRENT_REQUESTS_PER_DOMAIN": 8,
+        "CONCURRENT_REQUESTS": 500, # maximum number of requests to all domains
+        "CONCURRENT_REQUESTS_PER_DOMAIN" : 32, # increase this first to increase speed
         "DOWNLOAD_DELAY" : 1,
-        "RANDOMIZED_DOWNLOAD_DELAY":True, 
-
+        "RANDOMIZED_DOWNLOAD_DELAY":True,
+        
         "RETRY_ENABLED":True,
-        "RETRY_TIMES": 10, 
+        "RETRY_TIMES": 3, 
         "RETRY_HTTP_CODES": [500, 502, 503, 504, 408, 429, 403],
 
+        
         "AUTOTHROTTLE_ENABLED": True,
-        "AUTOTHROTTLE_START_DELAY": 5, # initial download delay
+        "AUTOTHROTTLE_START_DELAY": 0.5, # initial download delay
         "AUTOTHROTTLE_MAX_DELAY": 60, # maximum download delay to be set in case of high latencies
-        "AUTOTHROTTLE_TARGET_CONCURRENCY"  : 1.0, # average number of requests Scrapy should be sending in parallel to each remote server
+        "AUTOTHROTTLE_TARGET_CONCURRENCY"  : 32, # average number of requests Scrapy should be sending in parallel to each remote server
         
         "FEED_EXPORT_FIELDS": [ 
             "url",
