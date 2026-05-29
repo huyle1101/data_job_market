@@ -48,10 +48,10 @@ DEFAULT_REQUEST_HEADERS = {
     "Connection": "keep-alive",
 }
 
-DOWNLOAD_HANDLERS = {
-    "http": "scrapy_impersonate.ImpersonateDownloadHandler",
-    "https": "scrapy_impersonate.ImpersonateDownloadHandler",
-}
+# DOWNLOAD_HANDLERS = {
+#     "http": "scrapy_impersonate.ImpersonateDownloadHandler",
+#     "https": "scrapy_impersonate.ImpersonateDownloadHandler",
+# }
 
 ROBOTSTXT_OBEY = False
 
