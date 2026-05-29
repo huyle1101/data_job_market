@@ -37,19 +37,48 @@ log = logging.getLogger()
 
 
 KEYWORDS = [
+    # Data Core
     "data", "data-analyst", "data-engineer", "data-scientist",
     "data-science", "data-analytics", "data-architect", "data-modeler",
     "data-warehouse", "data-governance", "data-quality", "big-data",
+
+    # BI
     "business-intelligence", "analytics-engineer", "bi-developer",
-    "power-bi", "tableau", "etl", "database-administrator", "sql",
+    "power-bi", "tableau",
+
+    # Engineering / Database
+    "etl", "database-administrator", "sql",
+
+    # ML / AI Classic
     "machine-learning", "deep-learning", "mlops", "ai-engineer",
     "ai-developer", "ai-researcher", "artificial-intelligence",
-    "computer-vision", "nlp", "generative-ai", "gen-ai", "llm",
-    "prompt-engineer", "chatbot",
+    "computer-vision", "nlp",
+
+    # GenAI / Modern AI
+    "generative-ai", "gen-ai", "llm", "prompt-engineer", "chatbot",
+
     # intern versions
-    "intern-data", "intern-data-analyst", "intern-data-engineer",
-    "intern-data-scientist", "intern-machine-learning", "intern-deep-learning",
-    "intern-ai-engineer", "intern-nlp", "intern-generative-ai", "intern-llm",
+    # Data Core Intern
+    "intern-data", "intern-data-analyst", "intern-data-engineer", 
+    "intern-data-scientist", "intern-data-science", "intern-data-analytics", 
+    "intern-data-architect", "intern-data-modeler", "intern-data-warehouse", 
+    "intern-data-governance", "intern-data-quality", "intern-big-data",
+
+    # BI Intern
+    "intern-business-intelligence", "intern-analytics-engineer", 
+    "intern-bi-developer", "intern-power-bi", "intern-tableau",
+
+    # Engineering / Database Intern
+    "intern-etl", "intern-database-administrator", "intern-sql",
+
+    # ML / AI Classic Intern
+    "intern-machine-learning", "intern-deep-learning", "intern-mlops", 
+    "intern-ai-engineer", "intern-ai-developer", "intern-ai-researcher", 
+    "intern-artificial-intelligence", "intern-computer-vision", "intern-nlp",
+
+    # GenAI / Modern AI Intern
+    "intern-generative-ai", "intern-gen-ai", "intern-llm", 
+    "intern-prompt-engineer", "intern-chatbot"
 ]
 
 current_date = datetime.now()
