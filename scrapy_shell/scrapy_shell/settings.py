@@ -48,7 +48,14 @@ DEFAULT_REQUEST_HEADERS = {
     "Connection": "keep-alive",
 }
 
+DOWNLOAD_HANDLERS = {
+    "http": "scrapy_impersonate.ImpersonateDownloadHandler",
+    "https": "scrapy_impersonate.ImpersonateDownloadHandler",
+}
+
 ROBOTSTXT_OBEY = False
+
+TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 
 # DEFAULT_REQUEST_HEADERS = {
 #    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -68,9 +75,10 @@ ROBOTSTXT_OBEY = False
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
-    'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 400, 
+    'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 400,
 }
 
+# IMPERSONATE_BROWSER = "chrome124"
 
 
 # DEFAULT_REQUEST_HEADERS= {

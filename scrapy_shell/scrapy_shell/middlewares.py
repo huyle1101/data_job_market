@@ -7,6 +7,9 @@ from scrapy import signals
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
+import random
+from curl_cffi.requests import Session
+from scrapy.http import HtmlResponse
 
 
 class ScrapyShellSpiderMiddleware:
@@ -98,3 +101,27 @@ class ScrapyShellDownloaderMiddleware:
 
     def spider_opened(self, spider):
         spider.logger.info("Spider opened: %s" % spider.name)
+
+class CurlCffiMiddleware:
+    
+    BROWSERS = [
+        "chrome131",
+        "chrome136", 
+        "chrome142",
+        "chrome145",
+        "chrome146",
+        "firefox144",
+        "firefox147",
+    ]
+        
+    def process_request(self, request, spider):
+        browser = random.choice(self.BROWSERS)
+        # print(f">>> CurlCffi đang dùng: {browser} cho {request.url}")
+        with Session(impersonate=browser) as s:
+            r = s.get(request.url, timeout=15)
+            return HtmlResponse(
+                url=request.url,
+                body=r.content,
+                encoding="utf-8",
+                request=request,
+            )
