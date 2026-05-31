@@ -29,15 +29,3 @@ class careerviet_item(scrapy.Item):
     other_information = scrapy.Field()
     platform = scrapy.Field()
 
-class topcv_item(scrapy.Item):
-    url = scrapy.Field()
-    job_title = scrapy.Field()
-    salary_range = scrapy.Field()
-    location = scrapy.Field()
-    years_of_experience = scrapy.Field()
-    general_information = scrapy.Field()
-    job_description = scrapy.Field()
-    job_requirements = scrapy.Field()
-    benefits = scrapy.Field()
-    due_date = scrapy.Field()
-    platform = scrapy.Field()
